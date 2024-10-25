@@ -1,0 +1,81 @@
+
+plugins {
+    `kotlin-dsl`
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    google()
+    maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
+}
+
+kotlin {
+    sourceSets.getByName("main").kotlin.srcDir("buildSrc/src/main/kotlin")
+}
+
+multiplatform-setup:
+plugins {
+    alias(libs.plugins.androidLibrary)
+    kotlin("multiplatform")
+    kotlin("kapt")
+}
+kotlin {
+    jvm("desktop")
+    android()
+    ios()
+}
+
+multiplatform-compose-setup:
+plugins {
+    alias(libs.plugins.androidLibrary)
+    kotlin("multiplatform")
+    alias(libs.plugins.compose.compiler)
+}
+kotlin {
+    jvm("desktop")
+    android()
+
+    sourceSets {
+        named(commonMain) {
+            dependencies {
+                implementation(compose.foundation)
+                implementation(compose.runtime)
+                implementation(compose.material3)
+            }
+        }
+
+        named(desktopMain) {
+            dependencies {
+                implementation(compose.desktop.common)
+            }
+        }
+    }
+}
+
+android-setup:
+plugins {
+    alias(libs.plugins.androidLibrary)
+}
+
+android {
+    compileSdk = 34
+
+    defaultConfig {
+        minSDK = 28
+        targetSDK = 34
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        named("main") {
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            res.srcDirs("src/androidMain/res", "src/commonMain/resources")
+        }
+    }
+}
+
